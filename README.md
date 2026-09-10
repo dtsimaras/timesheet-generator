@@ -56,7 +56,7 @@ Use `"week": null` to fill every normal workday in the month. Use `"week": 1` to
 In the unzipped folder, run one file:
 
 - **Windows:** double-click `run_windows.bat`.
-- **Mac:** double-click `run_macos.command`. If Mac blocks it, right-click it, choose **Open**, then choose **Open** again.
+- **Mac:** double-click `run_macos.command`. If Mac blocks it, right-click it, choose **Open**, then choose **Open** again. Finder will select the created Excel file.
 - **Linux:** open a terminal in that folder and run `./run_linux.sh`.
 
 The Excel file is created here:

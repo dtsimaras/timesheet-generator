@@ -24,9 +24,27 @@ class LoadConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "default_hours"):
             self.load({"default_hours": -1})
 
+    def test_rejects_non_finite_default_hours(self) -> None:
+        with self.assertRaisesRegex(ValueError, "default_hours"):
+            self.load({"default_hours": float("nan")})
+
     def test_rejects_a_missing_employee_name(self) -> None:
         with self.assertRaisesRegex(ValueError, "employee_name"):
             self.load({"employee_name": ""})
+
+    def test_rejects_an_unknown_holiday_country(self) -> None:
+        with self.assertRaisesRegex(ValueError, "holiday_country"):
+            self.load({"holiday_country": "NOT_A_COUNTRY"})
+
+    def test_rejects_an_output_folder_outside_the_app(self) -> None:
+        with self.assertRaisesRegex(ValueError, "output_directory"):
+            self.load({"output_directory": "../outside"})
+
+    def test_rejects_boolean_values_for_number_settings(self) -> None:
+        with self.assertRaisesRegex(ValueError, "month"):
+            self.load({"month": True})
+        with self.assertRaisesRegex(ValueError, "default_hours"):
+            self.load({"default_hours": False})
 
     def load(self, overrides: dict[str, object]):
         values = {

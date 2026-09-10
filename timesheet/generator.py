@@ -1,6 +1,7 @@
 """Build the Timesheet worksheet with openpyxl."""
 
 import calendar
+import re
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -168,6 +169,9 @@ def set_column_widths(sheet) -> None:
 def output_filename(config: TimesheetConfig) -> str:
     """Keep the workbook filename stable; the folder identifies its period."""
     safe_name = "_".join(config.employee_name.split())
+    safe_name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", safe_name).strip(". ")
+    if not safe_name:
+        safe_name = "Timesheet"
     return f"Project_Timesheet_{safe_name}.xlsx"
 
 

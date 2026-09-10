@@ -1,8 +1,11 @@
 """Read and validate the small JSON configuration file."""
 
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
+
+import holidays
 
 
 @dataclass(frozen=True)
@@ -82,5 +85,19 @@ def validate_config(config: TimesheetConfig) -> None:
         raise ValueError("config.json: 'month' must be between 1 and 12.")
     if config.week is not None and not 1 <= config.week <= 5:
         raise ValueError("config.json: 'week' must be null or between 1 and 5.")
-    if config.default_hours < 0:
-        raise ValueError("config.json: 'default_hours' cannot be negative.")
+    if not math.isfinite(config.default_hours) or config.default_hours < 0:
+        raise ValueError(
+            "config.json: 'default_hours' must be a finite number that is zero or more."
+        )
+    output_path = Path(config.output_directory)
+    if output_path.is_absolute() or ".." in output_path.parts:
+        raise ValueError(
+            "config.json: 'output_directory' must be a folder inside this app."
+        )
+    try:
+        holidays.country_holidays(config.holiday_country, years=config.year)
+    except (KeyError, NotImplementedError) as error:
+        raise ValueError(
+            "config.json: 'holiday_country' must be a supported country code, "
+            "such as 'GR'."
+        ) from error

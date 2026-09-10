@@ -45,6 +45,13 @@ class ReportingDatesTests(unittest.TestCase):
             output_filename(config), "Project_Timesheet_Example_Developer.xlsx"
         )
 
+    def test_output_filename_is_safe_on_windows_and_macos(self) -> None:
+        config = self.config(week=None, employee_name="Ava / QA: Lead?")
+
+        self.assertEqual(
+            output_filename(config), "Project_Timesheet_Ava___QA__Lead_.xlsx"
+        )
+
     def test_week_selection_prefills_only_that_week_in_a_full_month_workbook(
         self,
     ) -> None:
@@ -64,6 +71,31 @@ class ReportingDatesTests(unittest.TestCase):
         self.assertEqual(sheet["H4"].fill.fgColor.rgb, "00DCE6F1")
         self.assertEqual(sheet["A4"].border.top.style, "thin")
 
+    def test_full_month_prefills_only_normal_workdays(self) -> None:
+        with TemporaryDirectory() as directory:
+            output_path = generate_timesheet(self.config(week=None), Path(directory))
+            sheet = load_workbook(output_path, data_only=False)["Timesheet"]
+
+        self.assertEqual(sheet["B6"].value, "Example Developer")
+        self.assertEqual(sheet["C6"].value, 1)
+        self.assertEqual(sheet["D6"].value, 8)
+        self.assertIsNone(sheet["B10"].value)  # Saturday, 5 September 2026.
+        self.assertIsNone(sheet["B11"].value)  # Sunday, 6 September 2026.
+        self.assertEqual(sheet["B12"].value, "Example Developer")
+        self.assertFalse(sheet.sheet_view.showGridLines)
+        self.assertEqual(sheet["A1"].border.top.style, None)
+        self.assertEqual(sheet["G6"].value, None)
+        self.assertEqual(len(sheet.data_validations.dataValidation), 1)
+
+    def test_week_five_fills_its_last_calendar_week(self) -> None:
+        config = self.config(week=5, month=11)
+        month_dates = reporting_dates(config)
+
+        self.assertEqual(
+            selected_week_dates(config, month_dates),
+            {date(2026, 11, day) for day in range(23, 30)},
+        )
+
     def test_greek_public_holiday_is_never_prefilled(self) -> None:
         with TemporaryDirectory() as directory:
             output_path = generate_timesheet(
@@ -77,9 +109,11 @@ class ReportingDatesTests(unittest.TestCase):
         self.assertEqual(sheet["A33"].fill.fgColor.rgb, "00D9D9D9")
 
     @staticmethod
-    def config(week: int | None, month: int = 9) -> TimesheetConfig:
+    def config(
+        week: int | None, month: int = 9, employee_name: str = "Example Developer"
+    ) -> TimesheetConfig:
         return TimesheetConfig(
-            employee_name="Example Developer",
+            employee_name=employee_name,
             year=2026,
             month=month,
             week=week,

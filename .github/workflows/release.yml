@@ -17,10 +17,16 @@ jobs:
         include:
           - os: macos-latest
             platform: macos
+            asset_name: macos-arm64
+          - os: macos-15-intel
+            platform: macos
+            asset_name: macos-intel
           - os: windows-latest
             platform: windows
+            asset_name: windows-x64
           - os: ubuntu-latest
             platform: linux
+            asset_name: linux-x64
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
@@ -31,10 +37,10 @@ jobs:
       - name: Build native bundle
         run: python -m PyInstaller --noconfirm --clean --onedir --name timesheet-generator --collect-all holidays main.py
       - name: Package release archive
-        run: python scripts/package_release.py --platform ${{ matrix.platform }}
+        run: python scripts/package_release.py --platform ${{ matrix.platform }} --asset-name ${{ matrix.asset_name }}
       - uses: actions/upload-artifact@v4
         with:
-          name: timesheet-generator-${{ matrix.platform }}
+          name: timesheet-generator-${{ matrix.asset_name }}
           path: release/*.zip
   publish:
     name: Publish GitHub release
@@ -45,7 +51,12 @@ jobs:
         with:
           path: release
           merge-multiple: true
-      - name: Create release and attach downloads
+      - name: Create or update release with downloads
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release/*.zip --generate-notes
+        run: |
+          if gh release view "$GITHUB_REF_NAME"; then
+            gh release upload "$GITHUB_REF_NAME" release/*.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" release/*.zip --generate-notes
+          fi

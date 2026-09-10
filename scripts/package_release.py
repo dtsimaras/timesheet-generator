@@ -24,7 +24,7 @@ def main() -> None:
         launcher_destination.chmod(0o755)
 
     release_dir.mkdir(exist_ok=True)
-    archive_name = release_dir / f"timesheet-generator-{arguments.platform}"
+    archive_name = release_dir / f"timesheet-generator-{arguments.asset_name}"
     shutil.make_archive(
         str(archive_name), "zip", project_root / "dist", "timesheet-generator"
     )
@@ -36,6 +36,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--platform", choices=("macos", "windows", "linux"), required=True
     )
+    parser.add_argument("--asset-name", required=True)
     return parser.parse_args()
 
 

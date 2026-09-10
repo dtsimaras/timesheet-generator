@@ -10,9 +10,10 @@ Use these steps after a release is available on GitHub. You do **not** need to i
 2. Click **Releases** on the right side of the page.
 3. Open the newest release.
 4. Under **Assets**, download the ZIP for your computer:
-   - Windows: the Windows ZIP
-   - Mac: the macOS ZIP
-   - Linux: the Linux ZIP
+   - Windows: `timesheet-generator-windows-x64.zip`
+   - Mac with an Apple chip (M1, M2, M3, or M4): `timesheet-generator-macos-arm64.zip`
+   - Mac with an Intel chip: `timesheet-generator-macos-intel.zip`
+   - Linux: `timesheet-generator-linux-x64.zip`
 5. Double-click the downloaded ZIP to unzip it.
 6. Open the unzipped folder.
 

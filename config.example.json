@@ -1,0 +1,10 @@
+{
+  "employee_name": "Your Name",
+  "year": 2026,
+  "month": 1,
+  "week": null,
+  "default_hours": 8,
+  "company_name": "Your Company",
+  "holiday_country": "GR",
+  "output_directory": "output"
+}

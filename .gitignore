@@ -1,5 +1,14 @@
 
 # env
 .venv
+.DS_Store
 
-.xlsx
+__pycache__/
+.tmp_sheet/
+config.json
+output/
+outputs/
+*.xlsx
+build/
+dist/
+release/
